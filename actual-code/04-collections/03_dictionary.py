@@ -24,3 +24,13 @@ for field in user_dict.items():
 # improve with unpacking
 for key, value in user_dict.items():
   print(f"Key { key } has value { value }.")
+
+# user_input = input("")
+# search_string = " " + user_input + " "
+
+# import re
+# re.search(rf"\b{re.escape(word)}\b", text) is not None
+
+import string
+
+print(string.punctuation)
