@@ -23,7 +23,6 @@ for attempt in range(attempts):
     print(f"Attempt {attempt + 1} of {attempts}")
     
     # Get the player's guess
-    try:
         guess = int(input("Enter your guess (1-50): "))
         
         # Check if the guess is valid
@@ -47,11 +46,7 @@ for attempt in range(attempts):
         if remaining > 0:
             print(f"You have {remaining} attempt(s) remaining.")
         print()
-        
-    except ValueError:
-        print("Please enter a valid number!")
-        continue
-
+  
 # Step 4: Handle Win or Loss
 print("=" * 50)
 if player_won:

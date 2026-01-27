@@ -21,7 +21,9 @@ while attempt < number_of_guesses:
     
     # Get the player's guess
     guess = int(input("Enter your guess (1-50): "))
-    
+    if guess < 1 or guess > 50:
+        print("Out of range, try again.")
+        continue 
     # Check the guess
     if guess == secret_channel:
         print("🎉 Congratulations! You've guessed correctly!")
