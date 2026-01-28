@@ -39,6 +39,10 @@ while True:
             chosen_item = item
             break
 
+    if chosen_item is None:
+        print("We don't have that product. Please choose 1-5 from the menu.\n")
+        continue
+
     qty_text = input(f"How many {chosen_item['name']} would you like? ").strip()
 
     try:
