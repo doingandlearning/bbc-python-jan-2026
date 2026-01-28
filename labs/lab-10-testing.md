@@ -120,7 +120,7 @@ pytest -v
 
 ---
 
-## What matters (say this out loud)
+## What matters
 
 - Tests are just Python functions
 - `assert` is the key idea
