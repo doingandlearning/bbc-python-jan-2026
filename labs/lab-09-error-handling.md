@@ -1,205 +1,247 @@
-# Lab 9: Error Handling
+# Lab 9: The Fault-Tolerant Checkout
 
-### **Objective**
-Even a perfect program can crash if it receives unexpected input. **Error handling** is the process of anticipating these situations and dealing with them gracefully instead of letting the program crash.
+## Objective
 
-The aim of this lab is to make our "Channel Guessing Game" more robust by using a `try...except` block to handle invalid user input.
+Build a tiny checkout that **never crashes**, even when the user enters nonsense. It should keep asking until it gets valid input, and give clear feedback.
 
----
+You’ll practise:
 
-## **What is Error Handling?**
-
-**Error handling** is a programming technique that allows your program to continue running even when it encounters problems. Instead of crashing, the program can catch errors, handle them appropriately, and continue with its normal operation.
-
-### **Key Concepts**
-- **Exception**: An error that occurs during program execution
-- **Try Block**: Code that might cause an error
-- **Except Block**: Code that handles the error if it occurs
-- **Graceful Degradation**: Program continues running despite errors
-- **User Experience**: Better interaction when things go wrong
+- `try...except`
+- handling _different_ error types
+- validating ranges
+- using `continue`
+- (optional) separating input logic into a helper function
 
 ---
 
-## **Step 1: Find the Bug**
+## Setup
 
-### **Tasks**
-1. Get a working copy of your "Channel Guessing Game" from Lab 3
-2. Run the script and identify where it can crash
-3. Understand what causes the `ValueError` to occur
+Start a new file: `lab_09_checkout.py`
 
-### **Hints**
-- Make sure you have a working guessing game from Lab 3
-- Run the script and play the game normally first
-- When prompted to "Please guess a channel number:", try entering non-numeric input
-- Think about what happens when `int()` tries to convert text to a number
-- Consider what types of input could cause problems
+Your program sells 5 items:
 
-### **Expected Outcomes**
-- You should be able to identify where the program crashes
-- You should see a `ValueError` message when entering invalid input
-- The program should stop running when the error occurs
-- You should understand why the error happens
+- `"Coffee"` costs £3.50
+- `"Tea"` costs £2.40
+- `"Sandwich"` costs £5.95
+- `"Cake"` costs £3.25
+- `"Fruit"` costs £1.10
 
-### **Check Your Work**
-- Does your guessing game run normally with valid numbers?
-- Does it crash when you enter text like "five" or "abc"?
-- Do you see a `ValueError` message?
-- Can you identify which line of code causes the crash?
+The user will:
+
+1. choose an item by number
+2. enter a quantity
+3. repeat until they type `done`
+4. see a receipt and total
 
 ---
 
-## **Step 2: Implement the `try...except` Block**
+## Step 1: Get it working (no error handling yet)
 
-### **Tasks**
-1. Wrap the risky code in a `try` block
-2. Add an `except` block to handle `ValueError`
-3. Provide a friendly error message to the user
-4. Use `continue` to give the user another chance
+### Your task
 
-### **Hints**
-- Find the line that converts user input to an integer
-- This line is risky because `input()` could return anything
-- Wrap the risky code in a `try` block
-- Add an `except ValueError:` block to catch the specific error
-- Print a helpful message when the error occurs
-- Use `continue` to skip to the next loop iteration
-- Think about what should happen when invalid input is entered
+- Print the menu (numbered 1–5)
+- Ask for an item number
+- Ask for a quantity
+- Add line total to a running total
+- Let the user type `done` to finish (at the item prompt)
 
-### **Expected Outcomes**
-- Your program should no longer crash on invalid input
-- It should display a friendly error message
-- The game should continue running and give another chance
-- Users should be able to enter text, symbols, and numbers without crashes
+### Outcome
 
-### **Check Your Work**
-- Does your program handle text input gracefully?
-- Does it show a helpful error message?
-- Does the game continue running after invalid input?
-- Can you play the game normally with valid numbers?
-- Does the error handling work for different types of invalid input?
+A working checkout that crashes if input is bad.
 
----
+<details>
+<summary>Starter code for <code>lab_09_checkout.py if you want to get straight to error handlings.</code></summary>
 
-## **Common Issues to Watch Out For**
+```python
+items = [
+    {"id": 1, "name": "Coffee",   "price": 3.50},
+    {"id": 2, "name": "Tea",      "price": 2.40},
+    {"id": 3, "name": "Sandwich", "price": 5.95},
+    {"id": 4, "name": "Cake",     "price": 3.25},
+    {"id": 5, "name": "Fruit",    "price": 1.10},
+]
 
-### **Try-Except Structure**
-- **Missing colon**: Don't forget `:` after `try` and `except`
-- **Wrong indentation**: Code inside blocks must be properly indented
-- **Missing except block**: Every `try` needs at least one `except`
-- **Wrong exception type**: Make sure you're catching `ValueError`, not other errors
+total = 0.0
+purchases = []  # You will use this later for the receipt (Step 4)
 
-### **Logic Errors**
-- **Wrong placement**: Put only the risky code in the `try` block
-- **Missing continue**: Without `continue`, the program might process invalid input
-- **Unclear messages**: Error messages should help users understand what went wrong
-- **Infinite loops**: Make sure the error handling doesn't create endless loops
+print("Welcome to the Fault-Tolerant Checkout")
+print("Type 'done' at any time at the item prompt to finish.\n")
 
-### **User Experience**
-- **Unhelpful messages**: Error messages should guide users to correct input
-- **No recovery**: Program should give users another chance to input correctly
-- **Confusing behavior**: Error handling should be predictable and consistent
+while True:
+    print("Menu:")
+    for item in items:
+        print(f"  {item['id']}. {item['name']} (£{item['price']:.2f})")
 
----
+    choice = input("\nChoose an item number (1-5) or type 'done': ").strip().lower()
+    if choice == "done":
+        break
 
-## **Testing Your Solutions**
+    # Step 1: This will crash on invalid input. You'll fix that in Step 2.
+    choice_num = int(choice)
 
-### **Test Scenarios**
-1. **Valid Input**: Test with normal numbers (1, 25, 50)
-2. **Text Input**: Test with words ("five", "abc", "hello")
-3. **Symbols**: Test with special characters ("@", "#", "!")
-4. **Empty Input**: Test with just pressing Enter
-5. **Mixed Input**: Test with combinations ("5abc", "abc5")
+    # Find the chosen item
+    chosen_item = None
+    for item in items:
+        if item["id"] == choice_num:
+            chosen_item = item
+            break
 
-### **Expected Results**
-- Valid numbers should work normally
-- Invalid input should show error messages
-- Game should continue running after errors
-- Users should get multiple chances to input correctly
-- No crashes should occur
+    if chosen_item is None:
+        print("That item number doesn't exist.\n")
+        continue
 
-### **Verification Steps**
-1. **Run the game** and test with valid numbers
-2. **Test error cases** with various invalid inputs
-3. **Check error messages** for clarity and helpfulness
-4. **Verify game flow** continues normally after errors
-5. **Test edge cases** like empty input or very long text
+    qty_text = input(f"How many {chosen_item['name']}? ").strip()
+
+    # Step 1: This will crash on invalid input. You'll fix that in Step 2.
+    quantity = int(qty_text)
+
+    line_total = chosen_item["price"] * quantity
+    total += line_total
+
+    # We'll build a proper receipt in Step 4
+    print(f"Added: {chosen_item['name']} x{quantity} = £{line_total:.2f}")
+    print(f"Running total: £{total:.2f}\n")
+
+print("\nThanks! (Receipt comes in Step 4)")
+print(f"Total: £{total:.2f}")
+```
+
+</details>
 
 ---
 
-## **Extension Ideas (Optional)**
+## Step 2: Stop crashes from bad numbers
 
-### **Enhanced Error Handling**
-- **Range validation**: Check if numbers are within 1-50 range
-- **Multiple error types**: Handle different types of invalid input
-- **Input sanitization**: Clean up user input before processing
-- **Retry limits**: Limit how many times users can enter invalid input
+### Your task
 
-### **Helper Functions**
-- **`get_guess()`**: Create a function to handle input and validation
-- **`validate_input()`**: Separate function for input validation
-- **`display_error()`**: Function to show user-friendly error messages
-- **`get_user_input()`**: Centralized input handling function
+Wrap the risky conversions in `try...except` so the program **never crashes** when:
 
-### **Custom Exceptions**
-- **`ChannelError`**: Create your own exception class
-- **`OutOfRangeError`**: Specific exception for invalid ranges
-- **`InvalidInputError**`: Exception for malformed input
-- **Exception hierarchy**: Build a family of related exceptions
+- the user types text instead of a number (`ValueError`)
+- the user just presses Enter
+- the user types something like `3.5` for a menu choice
 
----
+### Rules
 
-## **Solutions**
+- If the menu choice is invalid, show a helpful message and re-prompt.
+- If the quantity is invalid, show a helpful message and re-prompt.
 
-**Complete code examples for all exercises are available in the `solutions/lab-09` folder.**
+### Outcome
 
-- `solutions/error_handling_game.py` - Complete solution with error handling
-- `solutions/step_by_step/` - Individual step solutions
+Users can type anything and the program keeps going.
 
 ---
 
-## **Why Error Handling?**
+## Step 3: Validate ranges and meaning
 
-Error handling is powerful because it:
-- **Prevents crashes** - Programs continue running despite problems
-- **Improves user experience** - Users get helpful feedback instead of crashes
-- **Makes programs robust** - Code can handle unexpected situations
-- **Enables debugging** - Better understanding of what went wrong
-- **Follows best practices** - Professional programming standards
+Error handling catches “can’t parse”, but not “doesn’t make sense”.
 
----
+### Your task
 
-## **Real-World Applications**
+Add checks so that:
 
-Error handling is used everywhere in Python:
-- **Web applications**: Handle invalid form submissions gracefully
-- **File processing**: Deal with missing or corrupted files
-- **API interactions**: Handle network errors and invalid responses
-- **User interfaces**: Provide feedback for invalid user actions
-- **Data processing**: Handle malformed or unexpected data
+- menu choice must be 1–5
+- quantity must be an integer >= 1
+- optionally: quantity must be <= 20 (to prevent typos like 2000)
 
----
+If a check fails:
 
-## **Error Handling Best Practices**
+- print a specific message
+- `continue` the loop
 
-### **Specific Exceptions**
-- **Catch specific errors**: Use `except ValueError:` not `except:`
-- **Handle different errors**: Different exceptions need different handling
-- **Avoid bare except**: Don't catch all errors without knowing what they are
-- **Log errors**: Keep track of what went wrong for debugging
+### Outcome
 
-### **User Experience**
-- **Clear messages**: Tell users exactly what went wrong
-- **Helpful guidance**: Suggest how to fix the problem
-- **Graceful recovery**: Give users another chance when possible
-- **Consistent behavior**: Handle errors the same way throughout
+The checkout is robust and sensible.
 
 ---
 
-**Remember**: 
-- Start with simple error handling and build complexity gradually
-- Always test your error handling with various types of invalid input
-- Make error messages helpful and user-friendly
-- Use specific exception types, not generic error catching
-- Error handling is essential for professional, user-friendly programs
+## Step 4: Produce a receipt
 
-This lab introduces you to one of Python's most important concepts for building robust, user-friendly applications!
+### Your task
+
+Store each purchase in a list so you can print a receipt at the end.
+
+Each purchase should include:
+
+- item name
+- unit price
+- quantity
+- line total
+
+### Outcome
+
+At the end, print something like:
+
+- Coffee x2 = £7.00
+- Cake x1 = £3.25
+  Total = £10.25
+
+---
+
+## Step 5: Add one “real world” feature (pick one)
+
+Pick **one**:
+
+### Option A: Discount codes
+
+At the end ask:
+
+- “Enter discount code or press Enter:”
+  Valid codes:
+- `SAVE10` → 10% off total
+- `FIVER` → £5 off (but never below £0)
+
+Handle invalid codes gracefully.
+
+### Option B: Remove last item
+
+If the user types `undo` at the item prompt:
+
+- remove the last purchase (if there is one)
+- print what you removed
+
+### Option C: Split bill
+
+Ask:
+
+- “How many people?” (must be integer >=1)
+  Print per-person cost.
+
+---
+
+## Testing scenarios
+
+Try these inputs during the lab:
+
+- menu: `hello`
+- menu: `0`
+- menu: `6`
+- menu: `2.2`
+- menu: `` (just Enter)
+- quantity: `-1`
+- quantity: `0`
+- quantity: `ten`
+- quantity: `3.5`
+- flow: valid purchase → invalid purchase → valid purchase → done
+
+Expected:
+
+- no crashes
+- clear messages
+- you can always recover and continue
+
+---
+
+## Common mistakes to watch for
+
+- Catching `except:` instead of specific exceptions
+- Putting _too much_ inside `try` (keep it minimal)
+- Forgetting to `continue` after an error
+- Handling parse errors but forgetting range validation
+
+---
+
+## Extension ideas (if you want stretch goals)
+
+- Allow item name input (“coffee”) as well as number
+- If they buy the same item twice, merge the quantities
+- Show running total after each add
