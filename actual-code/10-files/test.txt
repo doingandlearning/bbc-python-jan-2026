@@ -1,0 +1,5 @@
+coins
+phone
+camera
+joycon
+cup
